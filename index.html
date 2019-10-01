@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>俄罗斯方块</title>
+    <script src="js/jquery-1.8.3.js"></script>
+    <script src="js/game.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+
+        }
+
+        body {
+            width: 500px;
+            margin: 0px auto;
+            /* margin-top: 70px; */
+            background-color: #2ed1a0;
+
+        }
+        .title{
+            text-align: center;
+            width:500px;
+            height:70px;
+            line-height: 70px;
+            padding: 10px 0;
+            color:white;
+            font-size: 50px;
+            font-weight: bold;
+        }
+
+        /* 设置整个游戏区域 */
+        .bg {
+            width: 490px;
+            background-color: #f5f5f5;
+            border: 1px solid #aaa;
+            /* box-sizing: border-box; */
+            box-shadow: 0 0 10px #999;
+            margin: 0px auto;
+            float: left;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        /* 承载整个方格区域 游戏初始化显示z-index */
+        .gameBoxBg {
+            width: 330px;
+            height: 450px;
+            background-image: url("img/bg.jpg");
+            float: left;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #999;
+            background-size: 100% 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* 只负责承载方格 */
+        .gameBox {
+            width: 330px;
+            /* height:600px; */
+            background-color: #000000;
+            position: relative;
+            /* float: left; */
+            /* overflow: hidden; */
+            z-index: -1;
+
+        }
+
+        /* 11*15小方格 */
+        .block {
+            width: 30px;
+            height: 30px;
+            background-color: #f9f9f9;
+
+            float: left;
+            border: 1px solid #f0f0f0;
+            border-radius: 5px;
+            box-sizing: border-box;
+            opacity: 0.9;
+
+        }
+
+        /* 移动的块 */
+        .blockmove {
+            width: 30px;
+            height: 30px;
+            /* background-color: red; */
+            float: left;
+            border: 2px solid #f0f0f0;
+            border-radius: 5px;
+            box-sizing: border-box;
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* 用来显示下一个方块 */
+        .nextBox {
+            width: 80px;
+            /* padding: 15px; */
+            margin: 35px;
+            float: left;
+            position: relative;
+            /* border-radius: 5px; */
+            /* box-shadow: 0 0 10px #999; */
+            z-index: -1;
+
+        }
+
+        /* 显示下一个的棋盘 */
+        .nextBlock {
+            width: 20px;
+            height: 20px;
+            float: left;
+            /* background-color: #a1e2cf; */
+            border-radius: 5px;
+            /* box-shadow: 0 0 10px #999; */
+            opacity: 0.5;
+        }
+
+        /* 作用同可移动的块 */
+        .nextSmallBlock {
+            width: 20px;
+            height: 20px;
+            float: left;
+            background-color: #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #999;
+            opacity: 0.5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* z-index: 1; */
+        }
+
+        .buttonStart {
+            width: 100px;
+            height: 30px;
+            float: left;
+            background-color: #2ed1a0;
+            border-radius: 20px;
+            box-shadow: 0 0 10px #999;
+            margin: 5px 25px;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .reStart {
+            width: 100px;
+            height: 30px;
+            float: left;
+            /* background-color: #2ed1a0; */
+            background-color: #f08f34;
+            border-radius: 20px;
+            box-shadow: 0 0 10px #999;
+            margin: 10px 25px;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .leftBox {
+            width: 150px;
+            height: 450px;
+            float: left;
+            margin: 0 5px;
+            background-color: rgb(76, 181, 230);
+            /* border: 1px solid #f0f0f0; */
+            border-radius: 5px;
+            box-shadow: 0 0 10px #999;
+            text-align: left;
+
+        }
+
+        .scoreBox {
+            width: 100px;
+            height: 30px;
+            float: left;
+            margin: 5px 25px;
+            margin-bottom: 20px;
+            background-color: rgb(76, 181, 230);
+            /* border: 1px solid #f0f0f0; */
+            border-radius: 20px;
+            /* box-shadow: 0 0 10px #999; */
+            text-align: left;
+            padding-left: 5px;
+            line-height: 30px;
+            color: white;
+            position: relative;
+
+        }
+
+        /* 游戏未开始时覆盖按键 */
+        .notStartBox {
+            width: 100px;
+            height: 30px;
+            float: left;
+            background-color: rgb(76, 181, 230);
+            border-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .tishi{
+            width:150px;
+            padding:20px;
+            margin-top:10px;
+            float:left;
+            color:white;
+        }
+        /* .scoreText{
+            z-index: -1;
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="title">代码敲不队</div>
+    <div class="bg">
+        <div class="leftBox">
+            <div class="nextBox">
+
+            </div>
+            <div class="scoreBox"><text class="scoreText">分数:0</text>
+                <div class="notStartBox"></div>
+            </div>
+            <div class="buttonStart">开 始</div>
+            <div class="reStart">重新开始</div>
+            <div class="tishi">
+                <div class="Bup">上：W或UP</div>
+                <div class="Bdown">下：S或Down</div>
+                <div class="Bleft">左：A或Left</div>
+                <div class="Bright">右：D或Right</div>
+            </div>
+
+        </div>
+        <div class="gameBoxBg">
+            <div class="gameBox">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        //添加11*15个小div
+        var gameBox = $(".gameBox");
+        for (var i = 0; i < 11; i++) {
+            for (var j = 0; j < 15; j++) {
+                var smallBox = $("<div class='block'></div>");
+                gameBox.append(smallBox);
+            }
+        };
+        // 承载下一个方块的棋盘 没有颜色
+        var nextBox = $(".nextBox");
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 4; j++) {
+                var nextBlock = $("<div class='nextBlock'></div>");
+                nextBox.append(nextBlock);
+            }
+        };
+        // 初始状态下 重新开始按钮不可见
+        $(".reStart").hide();
+        $(".tishi").hide();
+
+        function game() {
+            this.x = 120; //控制水平位置
+            this.y = 0; //控制垂直位置
+            this.pause = true; //控制开始暂停
+            this.over = false;  //控制游戏结束
+            this.speed = 600;   //控制下落速度
+            this.timer = null;
+            this.score = 0;
+            this.cols = [];
+            for (var i = 0; i < 15; i++) {
+                this.cols[i] = [];
+            };
+            //this.score = 0;
+            this.colors = ["#2451b1", "#ddaf4c", "#33abcf", "#2ed149", "#aa4c9e", "#058646", "#f08f34"];
+            this.map = [
+                //T
+                [
+                    [
+                        [30, 0],
+                        [0, -30],
+                        [30, -30],
+                        [60, -30]
+                    ],
+                    [
+                        [0, -30],
+                        [30, 0],
+                        [30, -30],
+                        [30, -60]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [60, 0],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [0, -60],
+                        [30, -30]
+                    ]
+                ],
+                //I
+                [
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [60, 0],
+                        [90, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [0, -60],
+                        [0, -90]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [60, 0],
+                        [90, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [0, -60],
+                        [0, -90]
+                    ]
+                ],
+                //L
+                [
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [0, -60],
+                        [30, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [30, -30],
+                        [60, -30]
+                    ],
+                    [
+                        [0, -60],
+                        [30, 0],
+                        [30, -30],
+                        [30, -60]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [60, 0],
+                        [60, -30]
+                    ]
+                ],
+                //S
+                [
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [0, -30],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [0, -30],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [0, -30],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [0, -30],
+                        [30, -30]
+                    ]
+                ],
+                //倒L
+                [
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [30, -30],
+                        [30, -60]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [60, 0],
+                        [0, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [0, -60],
+                        [30, -60]
+                    ],
+                    [
+                        [0, -30],
+                        [30, -30],
+                        [60, -30],
+                        [60, 0]
+                    ]
+                ],
+                //Z
+                [
+                    [
+                        [30, 0],
+                        [60, 0],
+                        [0, -30],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [30, -30],
+                        [30, -60]
+                    ],
+                    [
+                        [30, 0],
+                        [60, 0],
+                        [0, -30],
+                        [30, -30]
+                    ],
+                    [
+                        [0, 0],
+                        [0, -30],
+                        [30, -30],
+                        [30, -60]
+                    ]
+                ],
+                //倒Z
+                [
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [30, -30],
+                        [60, -30]
+                    ],
+                    [
+                        [0, -30],
+                        [0, -60],
+                        [30, -30],
+                        [30, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [30, 0],
+                        [30, -30],
+                        [60, -30]
+                    ],
+                    [
+                        [0, -30],
+                        [0, -60],
+                        [30, -30],
+                        [30, 0]
+                    ]
+                ]
+            ];
+        };
+
+
+
+        game.prototype = {
+            //游戏开始 生成初始数据
+            start: function () {
+                this.r1 = Math.floor(Math.random() * this.map.length); //随机的形状
+                this.r2 = Math.floor(Math.random() * 4); //随机的朝向
+
+                this.r3 = Math.floor(Math.random() * this.map.length); //预览图形的形状
+                this.r4 = Math.floor(Math.random() * 4); //预览图形的朝向
+                //this.newRandom();
+                this.showBlock();
+                this.autoMove();
+                this.keyMove();
+                var that = this;
+                $(".buttonStart").on("click", function () {
+
+                    $(".gameBox").css({
+                        "z-index": "1"
+                    })
+                    $(".nextBox").css({
+                        "z-index": "1"
+                    })
+                    $(".reStart").show();
+                    $(".notStartBox").hide();
+                    $(".tishi").show();
+                    that.pause = !that.pause;
+                    if (that.pause) {
+                        $(this).text("开 始")
+                    } else {
+                        $(this).text("暂 停")
+                    }
+                    var gameBox = $(".gameBox");
+                    for (var i = 0; i < 11; i++) {
+                        for (var j = 0; j < 15; j++) {
+                            var smallBox = $("<div class='block'></div>");
+                            gameBox.append(smallBox);
+                        }
+                    };
+                });
+                $(".reStart").on("click", function () {
+                    window.location.reload();
+                })
+
+            },
+
+            //生成可移动的块
+            showBlock: function () {
+                var colornum = Math.floor(Math.random() * 7);
+                var color = this.colors[colornum];
+                for (var i = 0; i < 4; i++) {
+                    $("<div class='blockmove move'></div>").css({
+                        top: this.map[this.r1][this.r2][i][1] + this.y + "px",
+                        left: this.map[this.r1][this.r2][i][0] + this.x + "px",
+                        backgroundColor: color
+                    }).appendTo(".gameBox");
+                    $("<div class='nextSmallBlock'></div>").css({
+                        top: (this.map[this.r3][this.r4][i][1] / 3) * 2 + 80 + "px",
+                        left: (this.map[this.r3][this.r4][i][0] / 3) * 2 + 0 + "px",
+                        //backgroundColor: "red"
+                    }).appendTo(".nextBox")
+                }
+            },
+            restBlock: function () {
+                //将即将固定的块记录到数组中
+                this.addCols();
+                // $(".move").
+                $(".move").addClass("done");
+                $(".move").removeClass("move");
+                this.r1 = this.r3;
+                this.r2 = this.r4;
+                this.x = 120;
+                this.y = 0;
+                this.r3 = Math.floor(Math.random() * this.map.length); //预览图形的形状
+                this.r4 = Math.floor(Math.random() * 4); //预览图形的朝向
+                $(".nextSmallBlock").removeClass("nextSmallBlock");
+                this.showBlock();
+            },
+            addCols: function () {
+                var moves = $(".move");
+                for (var i = 0; i < moves.length; i++) {
+                    var top = Math.round(moves.eq(i).position().top);
+                    //获取每一个小块的行，数组索引值
+                    if (top < 0) {
+                        this.over = true;
+                        alert("Game Over!")
+                        window.location.reload();
+                        break;
+                    }
+                    var index = top / 30;
+                    this.cols[index].push(1);
+                };
+                console.log(this.cols);
+                this.addScore();
+            },
+            addScore: function () {
+                //var that = this;
+                //排满的行数
+                var num = 0;
+                //记录得分
+                var that = this;
+                var score = 0;
+                for (var i = 0; i < 15; i++) {
+                    if (this.cols[i].length == 11) {
+                        num += 1;
+                        for (var j = i; j >= 0; j--) {
+                            this.cols[j] = this.cols[j - 1] || [];
+                            //this.removeLine(i);
+                        };
+
+                        this.removeLine(i);                    // this.removeLine(i);
+                    };
+                };
+                if (num == 1) {
+                    score = 100;
+                };
+                if (num == 2) {
+                    score = 300;
+                };
+                if (num == 3) {
+                    score = 600;
+                };
+                if (num == 4) {
+                    score = 900;
+                };
+                this.score = this.score + score;
+                $(".scoreText").text("分数:" + this.score);
+
+            },
+
+            //删除并向下移动行
+            removeLine: function (t) {
+                var blocks = $(".blockmove");
+                //用于存放所有准备删除的块
+                var animate = [];
+                //用于存放所有准备下落的块
+                var down = [];
+                for (var i = 0; i < blocks.length; i++) {
+                    var top = Math.round(blocks.eq(i).position().top);
+                    //如果当前span在当前行里，则删除。
+                    //如果span在当前行上边，则向下移动一个格子的高度，即30px。
+                    if (top == t * 30) {
+                        // blocks.eq(i).remove();
+                        animate.push(blocks.eq(i))
+                    } else if (top < t * 30) {
+                        // blocks.eq(i).css("top",top+30+"px");
+                        down.push(blocks.eq(i))
+
+                    }
+                };
+                //对遍历后的animate和down块进行处理
+                var num = 0;
+                var that = this;
+                hid();
+                function hid() {
+                    that.pause = true;
+                    setTimeout(function () {
+                        for (var i = 0; i < animate.length; i++) {
+                            animate[i].css({
+                                "opacity": "0",
+                                "background-color": "red"
+                            });
+                        };
+                        show();
+                    }, 50);
+                }
+                function show() {
+                    num++;
+                    if (num >= 10) {
+                        for (var i = 0; i < animate.length; i++) {
+                            animate[i].remove();
+                        };
+                        for (var i = 0; i < down.length; i++) {
+                            var top = Math.round(down[i].position().top);
+                            down[i].css("top", top + (animate.length / 11) * 30 + "px");
+                        };
+                        that.pause = false;
+                    } else {
+                        setTimeout(function () {
+                            for (var i = 0; i < animate.length; i++) {
+                                animate[i].css("opacity", 1);
+                            };
+                            hid();
+                        }, 50);
+                    }
+                }
+            },
+
+            //调整y的大小，用来控制块的向下移动
+            autoMove: function () {
+                var that = this;
+
+                that.timer = setInterval(function () {
+                    if (that.pause || that.over) {
+                        return false;
+                    }
+                    // if ((that.y + that.maxY()) >= 420 || that.judgeY()) {
+                    if ((that.y + that.maxY()) >= 420) {
+                        that.restBlock();
+                        return false;
+                    }
+                    if (!that.canMove(0, 30)) {
+                        that.restBlock();
+                        return false;
+                    }
+                    that.y += 30; //y的初始值为0 移动每次加30
+                    that.move(); //先移动再调用move来实现刷新位置
+
+                }, that.speed);
+            },
+            //调整并显示块的当前位置
+            move: function () {
+                var blocks = $(".move");
+                for (var i = 0; i < blocks.length; i++) {
+                    blocks.eq(i).css({
+                        top: this.map[this.r1][this.r2][i][1] + this.y + "px", //调整y的值后 修改每个块的坐标
+                        left: this.map[this.r1][this.r2][i][0] + this.x + "px"
+                    })
+                }
+            },
+
+            keyMove: function () {
+                var that = this;
+                //判断是否已经抽发向下箭头的事件，
+                // 如果已经出发了，改变状态为true，
+                // 阻止第二次触发
+                var down = false;
+                $(document).on("keydown", function (event) {
+                    if (that.pause || that.over) {//|| that.judgeWin() 
+                        return false;
+                    }
+                    var code = event.keyCode;
+                    console.log(code)
+                    if (code == 39||code == 68) {
+                        //向右
+                        // if ((that.maxX() + that.x) >= 300 || that.judgeX()) {
+                        if ((that.maxX() + that.x) >= 300) {
+                            return false;
+                        };
+                        if (!that.canMove(30, 0)) {
+                            return false;
+                        };
+                        that.x += 30;
+                        //console.log("moveX");
+                        that.move();
+                    }
+                    if (code == 37||code == 65) {
+                        //向左
+                        // if (that.x == 0 || that.judgeX()) {
+                        if (that.x == 0 ) {
+                            return false;
+                        }
+                        if (!that.canMove(-30, 0)) {
+                            return false;
+                        };
+                        that.x -= 30;
+                        that.move();
+                    }
+                    if (code == 40||code == 83) {
+                        if (down) {
+                            return false;
+                        };
+                        down = true;
+                        clearInterval(that.timer);
+                        that.speed = 50;
+                        that.autoMove();
+                    }
+                    if (code == 38||code==87) {
+                        var r2 = that.r2;
+                        if (r2 == 3) {
+                            r2 = 0;
+                        } else {
+                            r2 = r2 + 1;
+                        };
+                        if (!that.canRotate(r2)) {
+                            return false;
+                        }
+                        that.r2 = r2;
+                        that.move();
+                    }
+                })
+                    .on("keyup", function (e) {
+                        if (that.pause || that.over) {
+                            return false;
+                        };
+                        var code = e.keyCode;
+                        if (code == 40||code == 83) {
+                            // 清除自动下落的计时器
+                            clearInterval(that.timer);
+                            down = false;
+                            that.speed = 600;
+                            that.autoMove();
+                        }
+                    })
+            },
+            //判断有没有块压块
+            canMove: function (x, y) {
+                var t = true;
+                //获取所有带有block类名，而且不带move类名的元素节点
+                var blocks = $(".blockmove").not(".move")
+                var moves = $(".move");
+                for (var i = 0; i < blocks.length; i++) {
+                    var bTop = Math.round(blocks.eq(i).position().top);
+                    var bLeft = Math.round(blocks.eq(i).position().left);
+                    for (var j = 0; j < moves.length; j++) {
+                        var mTop = Math.round(moves.eq(j).position().top) + y;
+                        var mLeft = Math.round(moves.eq(j).position().left) + x;
+                        if (bTop == mTop && bLeft == mLeft) {
+                            t = false;
+                            break;
+                        }
+                    }
+                };
+                return t;
+            },
+
+            canRotate: function (r2) {
+                var that = this;
+                var t = true;
+                //获取所有不能移动的块
+                var blocks = $(".blockmove").not(".move")
+
+                // console.log(bTop,mTop,bLeft,mLeft)
+                //判断有没有超出右侧边界
+                if (that.rotateMaxX(r2) + that.x >= 300) {
+                    that.x = 300 - that.rotateMaxX(r2);
+                    console.log("=====" + that.x)
+                    //that.move();
+                    t = true;
+                    //break;
+
+                };
+                //判断有没有超出下边界
+
+                for (var j = 0; j < 4; j++) {
+                    var mTop = that.map[that.r1][r2][j][1] + that.y;
+                    var mLeft = that.map[that.r1][r2][j][0] + that.x;
+                    for (var i = 0; i < blocks.length; i++) {
+                        var bTop = Math.round(blocks.eq(i).position().top);
+                        var bLeft = Math.round(blocks.eq(i).position().left);
+                        //判断有没有压住已有的小块
+                        if (bTop == mTop && bLeft == mLeft) {
+                            t = false;
+                            break;
+                        };
+                    };
+                };
+                return t;
+            },
+            rotateMaxX: function (r2) {
+                var x = 0;
+                var temp = this.map[this.r1][r2];
+                for (var i = 0; i < temp.length - 1; i++) {
+                    for (var j = 0; j < temp.length - i - 1; j++) {
+                        if (temp[j][0] < temp[j + 1][0]) {
+                            x = temp[j];
+                            temp[j] = temp[j + 1];
+                            temp[j + 1] = x;
+                        }
+                    }
+                }
+
+                x = temp[0][0];
+                console.log("maxX:" + x);
+                return x;
+            },
+            //获取最下边的小方格的y值
+            rotateMaxY: function (r2) {
+                var y = 0;
+                var temp = this.map[this.r1][r2];
+                for (var i = 0; i < temp.length - 1; i++) {
+                    for (var j = 0; j < temp.length - i - 1; j++) {
+                        if (temp[j][1] < temp[j + 1][1]) {
+                            y = temp[j];
+                            temp[j] = temp[j + 1];
+                            temp[j + 1] = y;
+                        }
+                    }
+                }
+                y = temp[0][0];
+                console.log("maxY:" + y);
+                return y;
+            },
+            //获取最右边的小方格的x值
+            maxX: function () {
+                var x = 0;
+                for (var i = 0; i < 4; i++) { //每个图形数组有4个，进行遍历
+                    if (this.map[this.r1][this.r2][i][0] > x) {
+                        x = this.map[this.r1][this.r2][i][0];
+                    };
+                };
+                return x;
+            },
+            //获取最下边的小方格的y值
+            maxY: function () {
+                var y = 0;
+                for (var i = 0; i < 4; i++) {
+                    if (this.map[this.r1][this.r2][i][1] > y) {
+                        y = this.map[this.r1][this.r2][i][1];
+                    };
+                };
+                return y;
+            },
+            //判断纵向是否相撞
+            // judgeY: function () {
+            //     for (var i = 0; i < $(".move").length; i++) {
+            //         var nowX = $(".move").eq(i).position().left;
+            //         var nowY = $(".move").eq(i).position().top;
+            //         for (var j = 0; j < $(".done").length; j++) {
+            //             var doneX = $(".done").eq(j).position().left;
+            //             var doneY = $(".done").eq(j).position().top;
+            //             if (nowX == doneX) {
+            //                 // if (nowY + 30 == doneY && doneY == 30) {
+            //                 //     return true;
+            //                 // }
+            //                 if (nowY + 30 == doneY) {
+            //                     return true;
+            //                 }
+            //             }
+            //         }
+
+            //     }
+            // },
+            // //判断横向是否相撞
+            // judgeX: function () {
+            //     for (var i = 0; i < $(".move").length; i++) {
+            //         var nowX = $(".move").eq(i).position().left;
+            //         var nowY = $(".move").eq(i).position().top;
+            //         for (var j = 0; j < $(".done").length; j++) {
+            //             var doneX = $(".done").eq(j).position().left;
+            //             var doneY = $(".done").eq(j).position().top;
+            //             if (nowY == doneY) {
+            //                 if (nowX - 30 == doneX || nowX + 30 == doneX) {
+            //                     return true;
+            //                 }
+            //             }
+            //         }
+
+            //     }
+
+            // },
+
+        };
+        var game = new game();
+        game.start();
+    </script>
+</body>
+
+</html>
